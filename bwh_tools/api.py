@@ -1,4 +1,3 @@
-import json
 import frappe
 
 from frappe.utils.safe_exec import get_safe_globals
