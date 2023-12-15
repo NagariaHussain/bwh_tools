@@ -59,6 +59,13 @@ def get_serialized_safe_globals():
                 formatted_globals.update(
                     get_formatted_globals_as_json_helper(value, prefix + key + ".")
                 )
+
+            elif type(value) == type and issubclass(value, Exception):
+                formatted_globals[prefix + key] = {
+                    "type": type(value).__name__,
+                    "is_exception": True,
+                }
+
             elif callable(value):
                 formatted_globals[prefix + key] = {
                     "type": type(value).__name__,
@@ -93,4 +100,14 @@ def get_serialized_safe_globals():
                 }
         return formatted_globals
 
-    return get_formatted_globals_as_json_helper(safe_globals)
+    formatted_globals = get_formatted_globals_as_json_helper(safe_globals)
+
+    # group exceptions together
+    exceptions = {}
+    for key, value in formatted_globals.items():
+        if value.get("is_exception"):
+            exceptions[key] = value
+
+    formatted_globals["exceptions"] = exceptions
+
+    return formatted_globals
